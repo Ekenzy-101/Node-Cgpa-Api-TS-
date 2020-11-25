@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken";
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IUser } from "src/models/user";
-import { IRequest } from "./admin";
 
-export default async (req: IRequest, res: Response, next: NextFunction) => {
+export default async (req: Request, res: Response, next: NextFunction) => {
   const token = await req.header("x-auth-token");
   if (!token) return res.status(401).send("Access denied. No token provided.");
 

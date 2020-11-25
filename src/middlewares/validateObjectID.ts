@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 
 export default (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user.isAdmin) return res.status(403).send("Access denied.");
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res.status(404).send("Invalid Object ID");
 
   return next();
 };

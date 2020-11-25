@@ -1,28 +1,26 @@
 import lodash from "lodash";
 import bcrypt from "bcrypt";
-import express, { Request, RequestHandler, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import User from "../models/user";
 import { validate, getValidationErrors } from "../middlewares/validateUser";
 import admin from "../middlewares/admin";
 import auth from "../middlewares/auth";
-import { getUser } from "../middlewares/user";
 
 const router = express.Router();
 
-const adminHandler = admin as RequestHandler;
-const authHandler = auth as RequestHandler;
+router.get("/", [auth, admin], async (_: Request, res: Response) => {
+  const users = await User.find({}).select("-__v -password ");
+  return res.send(users);
+});
+
 router.get(
-  "/",
-  [authHandler, adminHandler],
-  async (_: Request, res: Response) => {
-    const users = await User.find({}).select("-__v -password ");
-    return res.send(users);
+  "/me",
+  auth,
+  async (req: Request, res: Response, _: NextFunction) => {
+    const user = await User.findById(req.user._id).select("-__v -password");
+    return res.send(user);
   }
 );
-
-const getUserHandler = getUser as RequestHandler;
-
-router.get("/me", authHandler, getUserHandler);
 
 router.post("/", validate, async (req: Request, res: Response) => {
   // Validate request from the body
